@@ -3,10 +3,11 @@ const { createServer } = require('http');
 const { Server } = require('socket.io');
 const next = require('next');
 const cors = require('cors');
+const compression = require('compression');
 
 const port = parseInt(process.env.PORT, 10) || 3000;
 const dev = process.env.NODE_ENV !== 'production';
-const app = next({ dev });
+const app = next({ dev, dir: __dirname });
 const handle = app.getRequestHandler();
 
 // Global timer state
@@ -142,9 +143,9 @@ app.prepare().then(() => {
   }));
 
   // Compression middleware
-  expressApp.use(require('compression')());
+  expressApp.use(compression());
 
-  // Handle Next.js requests
+  // Handle all requests with Next.js
   expressApp.all('*', (req, res) => {
     return handle(req, res);
   });
