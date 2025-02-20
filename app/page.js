@@ -35,16 +35,18 @@ const Home = () => {
     const maxReconnectAttempts = 5;
 
     const connectSocket = () => {
-      // Use relative URL - this will work with any domain
       const newSocket = io({
         path: '/socket.io',
-        transports: ['polling', 'websocket'],
-        reconnectionAttempts: maxReconnectAttempts,
-        reconnectionDelay: 1000,
+        transports: ['websocket', 'polling'],
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000 * (1 + Math.random()),
         timeout: 20000,
         autoConnect: true,
         forceNew: true,
-        secure: true // Enable secure connection
+        secure: true,
+        randomizationFactor: 0.5,
+        reconnectionDelayMax: 5000,
+        volatile: true
       });
 
       newSocket.on('connect', () => {

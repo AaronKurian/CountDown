@@ -23,7 +23,7 @@ app.prepare().then(() => {
   const expressApp = express();
   const server = createServer(expressApp);
   
-  // Initialize Socket.IO with universal access configuration
+  // Initialize Socket.IO with optimized settings for high concurrency
   const io = new Server(server, {
     cors: {
       origin: "*",
@@ -38,21 +38,63 @@ app.prepare().then(() => {
     upgradeTimeout: 30000,
     allowUpgrades: true,
     cookie: false,
-    serveClient: true
+    serveClient: true,
+    // Performance optimizations
+    perMessageDeflate: {
+      threshold: 2048, // Only compress data above this size
+      zlibInflateOptions: {
+        chunkSize: 10 * 1024 // Optimize memory usage
+      }
+    },
+    maxHttpBufferSize: 1e6, // 1 MB
+    // Connection throttling
+    connectionStateRecovery: {
+      maxDisconnectionDuration: 2 * 60 * 1000, // 2 minutes
+      skipMiddlewares: true,
+    },
+    // Batch client updates
+    volatile: true
   });
+
+  // Batch timer updates
+  let pendingUpdates = new Set();
+  const BATCH_INTERVAL = 1000; // Send updates every second
+
+  const broadcastTimerUpdate = () => {
+    if (pendingUpdates.size > 0) {
+      io.volatile.emit('time-sync', globalTimer);
+      pendingUpdates.clear();
+    }
+  };
+
+  setInterval(broadcastTimerUpdate, BATCH_INTERVAL);
 
   // Handle Socket.IO connections
   io.on('connection', (socket) => {
     const clientIp = socket.handshake.address;
-    console.log(`Client connected - ID: ${socket.id}, IP: ${clientIp}`);
+    
+    // Rate limiting per IP
+    const rateLimiter = {
+      timestamp: Date.now(),
+      count: 0
+    };
+
     connectedClients.add(socket.id);
-    console.log('Total connected clients:', connectedClients.size);
 
     // Send initial timer state to new connection
     socket.emit('time-sync', globalTimer);
 
     socket.on('timer-control', (action) => {
-      console.log('Timer control received:', action);
+      // Rate limiting check (5 actions per 5 seconds)
+      const now = Date.now();
+      if (now - rateLimiter.timestamp > 5000) {
+        rateLimiter.count = 0;
+        rateLimiter.timestamp = now;
+      }
+      if (rateLimiter.count >= 5) {
+        return;
+      }
+      rateLimiter.count++;
 
       switch (action.type) {
         case 'START':
@@ -62,7 +104,7 @@ app.prepare().then(() => {
           timerInterval = setInterval(() => {
             if (globalTimer.isRunning && !globalTimer.isPaused && globalTimer.time > 0) {
               globalTimer.time--;
-              io.emit('time-sync', globalTimer); // Broadcast to all clients
+              pendingUpdates.add(globalTimer);
             }
           }, 1000);
           break;
@@ -82,32 +124,25 @@ app.prepare().then(() => {
           break;
       }
 
-      // Broadcast updated state to all clients
-      io.emit('time-sync', globalTimer);
+      pendingUpdates.add(globalTimer);
     });
 
     socket.on('disconnect', () => {
-      console.log('Client disconnected:', socket.id);
       connectedClients.delete(socket.id);
-      console.log('Total connected clients:', connectedClients.size);
     });
   });
 
-  // Enable CORS for all routes with all origins
+  // Enable CORS with optimized settings
   expressApp.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
-    allowedHeaders: ['*']
+    allowedHeaders: ['*'],
+    maxAge: 86400 // Cache preflight requests for 24 hours
   }));
 
-  // Additional headers for better cross-origin support
-  expressApp.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', '*');
-    next();
-  });
+  // Compression middleware
+  expressApp.use(require('compression')());
 
   // Handle Next.js requests
   expressApp.all('*', (req, res) => {
