@@ -1,8 +1,8 @@
 "use client";
-import { useState, useEffect } from 'react';
-import { signIn, signOut, useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import io from 'socket.io-client';
+import { useState, useEffect } from "react";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import io from "socket.io-client";
 
 const motivationalQuotes = [
   // ... your existing quotes array ...
@@ -19,28 +19,33 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push('/admin/login');
+      router.push("/admin/login");
     }
   }, [status, router]);
 
+  const socketURL =
+    process.env.NODE_ENV === "development"
+      ? process.env.NEXT_PUBLIC_SOCKET_URL_LOCAL
+      : process.env.NEXT_PUBLIC_SOCKET_URL_PROD;
+
   useEffect(() => {
-    const newSocket = io('http://localhost:3000', {
-      transports: ['websocket', 'polling'],
+    const newSocket = io(socketURL, {
+      transports: ["websocket", "polling"],
       reconnectionAttempts: 5,
-      reconnectionDelay: 1000
+      reconnectionDelay: 1000,
     });
 
-    newSocket.on('connect', () => {
-      console.log('Socket connected:', newSocket.id);
+    newSocket.on("connect", () => {
+      console.log("Socket connected:", newSocket.id);
       setSocket(newSocket);
     });
 
-    newSocket.on('connect_error', (error) => {
-      console.error('Socket connection error:', error);
+    newSocket.on("connect_error", (error) => {
+      console.error("Socket connection error:", error);
     });
 
-    newSocket.on('time-sync', (timerState) => {
-      console.log('Received timer state:', timerState);
+    newSocket.on("time-sync", (timerState) => {
+      console.log("Received timer state:", timerState);
       setTime(timerState.time);
       setIsRunning(timerState.isRunning);
       setIsPaused(timerState.isPaused);
@@ -61,36 +66,36 @@ export default function AdminPage() {
   };
 
   const handleStart = () => {
-    console.log('Start button clicked, socket:', socket?.connected);
+    console.log("Start button clicked, socket:", socket?.connected);
     if (socket && socket.connected) {
-      socket.emit('timer-control', { 
-        type: 'START',
-        time: 24 * 60 * 60 
+      socket.emit("timer-control", {
+        type: "START",
+        time: 24 * 60 * 60,
       });
-      console.log('Start command sent');
+      console.log("Start command sent");
     } else {
-      console.error('Socket not connected');
+      console.error("Socket not connected");
     }
   };
 
   const handlePauseResume = () => {
     if (socket && socket.connected) {
-      socket.emit('timer-control', { 
-        type: isPaused ? 'RESUME' : 'PAUSE',
-        time: time 
+      socket.emit("timer-control", {
+        type: isPaused ? "RESUME" : "PAUSE",
+        time: time,
       });
     }
   };
 
   const handleStop = () => {
     if (socket && socket.connected) {
-      socket.emit('timer-control', { type: 'STOP' });
+      socket.emit("timer-control", { type: "STOP" });
     }
   };
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
-    router.push('/admin/login');
+    router.push("/admin/login");
   };
 
   if (status === "loading") {
@@ -107,7 +112,11 @@ export default function AdminPage() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold">Admin Control Panel</h1>
           <div className="flex items-center gap-4">
-            <span className={`h-3 w-3 rounded-full ${socket?.connected ? 'bg-green-500' : 'bg-red-500'}`}></span>
+            <span
+              className={`h-3 w-3 rounded-full ${
+                socket?.connected ? "bg-green-500" : "bg-red-500"
+              }`}
+            ></span>
             <button
               onClick={handleLogout}
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
@@ -135,7 +144,7 @@ export default function AdminPage() {
                 onClick={handleStart}
                 disabled={!socket?.connected}
                 className={`px-6 py-2 text-white bg-gradient-to-r from-[#E283BD] to-[#E2CF6C] rounded-[30px] hover:opacity-90 transition-all hover:scale-105 
-                  ${!socket?.connected ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  ${!socket?.connected ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 Start Timer
               </button>
@@ -145,7 +154,9 @@ export default function AdminPage() {
                   onClick={handlePauseResume}
                   disabled={!socket?.connected}
                   className={`px-6 py-2 text-white bg-gradient-to-r from-[#E283BD] to-[#E2CF6C] rounded-[30px] hover:opacity-90 transition-all hover:scale-105
-                    ${!socket?.connected ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    ${
+                      !socket?.connected ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                 >
                   {isPaused ? "Resume" : "Pause"}
                 </button>
@@ -153,7 +164,9 @@ export default function AdminPage() {
                   onClick={handleStop}
                   disabled={!socket?.connected}
                   className={`px-6 py-2 text-white bg-gradient-to-r from-[#E283BD] to-[#E2CF6C] rounded-[30px] hover:opacity-90 transition-all hover:scale-105
-                    ${!socket?.connected ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    ${
+                      !socket?.connected ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                 >
                   Stop
                 </button>
@@ -164,4 +177,4 @@ export default function AdminPage() {
       </div>
     </div>
   );
-} 
+}
