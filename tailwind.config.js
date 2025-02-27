@@ -12,6 +12,9 @@ module.exports = {
         khuja: ['var(--font-khuja)'],
         productsansbold: ['var(--font-productsans-bold)'],
       },
+      fontFamily: {
+        satoshi: ["var(--font-satoshi)", "sans-serif"],
+      },
     },
   },
   plugins: [],

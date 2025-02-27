@@ -1,11 +1,15 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { signIn, signOut, useSession } from "next-auth/react";  
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import io from 'socket.io-client';
 
 const img = "/assets/images/2.0.png";
 const i = "/assets/images/original_i_kuthu.png";
-const tinkHackBg = "/assets/images/background.svg";
+
+import background from "./assets/background.svg";
+import logo from "./assets/logo2.png";
 
 const motivationalQuotes = [
   "Hackathons aren't about coding, they're about creating the future.",
@@ -134,10 +138,16 @@ const Home = () => {
 
   return (
     <main className="flex min-h-screen flex-col items-center p-36 bg-black text-white w-screen font-satoshi">
-      <img src={tinkHackBg} className="bg-img" alt="Countdown background" />
+      <Image src={background} className="bg-img" alt="Countdown background" width={100} height={100} />
 
       <div className="z-10 flex items-center justify-center h-1/4 w-screen">
         <div className="flex flex-col items-center justify-center gap-0 w-screen relative">
+          <Image 
+            src={logo} 
+            alt="Logo" 
+            width={200}
+            className="top-0 -mt-24"
+          />
           {/* <div className="filter blur-[0.5px] font-productsansbold font-bold text-center -px-8
             text-[2.2rem] mt-20 
             sm:text-[3rem] sm:mt-20 
@@ -204,7 +214,7 @@ const Home = () => {
 
       <section className="flex-col z-50">
         {isRunning && !isPaused && time > 0 ? (
-          <div className="text-2xl font-bold text-center mb-2 text-gray-400 transition-opacity duration-500 ease-in-out min-h-[4rem]">
+          <div className="text-md sm:text-2xl font-bold text-center mb-2 text-gray-400 transition-opacity duration-500 ease-in-out min-h-[4rem]">
             {motivationalQuotes[currentQuote]}
           </div>
         ) : (
@@ -219,7 +229,7 @@ const Home = () => {
           <p className="text-4xl text-center mt-8">Hackathon has ended! 🎉</p>
         )}
 
-        <div className="text-center text-gray-400 mt-4">
+        <div className="text-center text-transparent mt-4">
           {!isRunning ? "Timer Stopped" : isPaused ? "Timer Paused" : "Timer Running"}
         </div>
       </section>
@@ -229,6 +239,8 @@ const Home = () => {
           Failed to connect to server. Please check your internet connection and try again later.
         </div>
       )}
+
+      
     </main>
   );
 };

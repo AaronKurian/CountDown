@@ -2,6 +2,9 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import logo from "../../assets/logo2.png";
+import background from "../../assets/background.svg";
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -25,9 +28,17 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black">
-      <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-96">
-        <h1 className="text-2xl font-bold text-white mb-6 text-center">Admin Login</h1>
+    <div
+      className="min-h-screen flex flex-col items-center justify-center font-satoshi"
+      style={{
+        backgroundImage: `url(${background.src})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
+      <Image src={logo} alt="logo" width={150} className="mb-8 -mt-24" />
+      <div className="bg-gray-950 p-6 rounded-lg shadow-lg w-96">
+        <h1 className="text-2xl font-bold text-center text-white mb-4">Admin Login</h1>
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -50,7 +61,7 @@ export default function Login() {
           </div>
           <button
             type="submit"
-            className="w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            className="w-full py-2 px-4 bg-gradient-to-br from-pink-600 to-yellow-600 text-white rounded hover:bg-blue-700 transition-colors"
           >
             Login
           </button>

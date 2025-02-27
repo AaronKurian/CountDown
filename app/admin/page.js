@@ -2,10 +2,24 @@
 import { useState, useEffect } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import io from "socket.io-client";
+import logo from "../assets/logo2.png";
+import background from "../assets/background.svg";
 
 const motivationalQuotes = [
-  // ... your existing quotes array ...
+  "Hackathons aren't about coding, they're about creating the future.",
+  "Every great innovation starts with a crazy idea and a sleepless night.",
+  "Think. Code. Innovate. Repeat.",
+  "The only way to do great work is to love what you do. – Steve Jobs",  
+  "It's not about how many times you fail, it's about how many times you iterate.",
+  "Dream big, build fast, break things, and fix them even faster.",
+  "Alone we can do so little, together we can do so much. – Helen Keller",  
+  "A hackathon isn't about being the best coder, it's about solving real problems.",
+  "Great things happen when passionate minds come together.",
+  "Code like there's no tomorrow. Because the deadline is real!",
+  "Sleep is optional. Innovation is not.",
+  "Success is built in the hours when others are resting.",
 ];
 
 export default function AdminPage() {
@@ -56,6 +70,19 @@ export default function AdminPage() {
     };
   }, []);
 
+  // Change quote every 3 seconds only if the timer is running
+  useEffect(() => {
+    let quoteInterval;
+
+    if (isRunning && !isPaused && time > 0) {
+      quoteInterval = setInterval(() => {
+        setCurrentQuote((prevQuote) => (prevQuote + 1) % motivationalQuotes.length);
+      }, 3000); // Change quote every 3000 milliseconds (3 seconds)
+    }
+
+    return () => clearInterval(quoteInterval); // Cleanup interval on component unmount or when isRunning changes
+  }, [isRunning, isPaused]); // Depend on isRunning and isPaused
+
   const formatTime = (timeInSeconds) => {
     const hours = Math.floor(timeInSeconds / 3600);
     const minutes = Math.floor((timeInSeconds % 3600) / 60);
@@ -72,6 +99,7 @@ export default function AdminPage() {
         type: "START",
         time: 24 * 60 * 60,
       });
+      setIsRunning(true); // Set isRunning to true when starting the timer
       console.log("Start command sent");
     } else {
       console.error("Socket not connected");
@@ -84,12 +112,14 @@ export default function AdminPage() {
         type: isPaused ? "RESUME" : "PAUSE",
         time: time,
       });
+      setIsPaused(!isPaused); // Toggle isPaused state
     }
   };
 
   const handleStop = () => {
     if (socket && socket.connected) {
       socket.emit("timer-control", { type: "STOP" });
+      setIsRunning(false); // Set isRunning to false when stopping the timer
     }
   };
 
@@ -107,7 +137,14 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-8">
+    <div 
+      className="min-h-screen text-white p-8 font-satoshi" 
+      style={{ 
+        backgroundImage: `url(${background.src})`,
+        backgroundSize: 'cover', 
+        backgroundPosition: 'center' 
+      }}
+    >
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold">Admin Control Panel</h1>
@@ -126,13 +163,21 @@ export default function AdminPage() {
           </div>
         </div>
 
-        <div className="bg-gray-900 p-6 rounded-lg shadow-lg">
+        <div className="bg-transparent border-1 border-white p-6 rounded-lg shadow-lg">
+          {/* Add logo here */}
+          <Image src={logo} alt="Logo" width={200} height={200} className="mx-auto mb-4" />
+          
+          {/* Add the motivational quotes here */}
+          <div className="text-center mb-4">
+            <p className="text-sm sm:text-lg text-gray-400">{motivationalQuotes[currentQuote]}</p>
+          </div>
+
           {/* Timer Display */}
           <div className="text-center mb-8">
-            <span className="text-7xl font-bold timer text-white block mb-4">
+            <span className="text-6xl sm:text-7xl font-bold timer text-white block mb-4">
               {formatTime(time)}
             </span>
-            <div className="text-gray-400">
+            <div className="text-slate-400">
               Status: {!isRunning ? "Stopped" : isPaused ? "Paused" : "Running"}
             </div>
           </div>
@@ -143,7 +188,7 @@ export default function AdminPage() {
               <button
                 onClick={handleStart}
                 disabled={!socket?.connected}
-                className={`px-6 py-2 text-white bg-gradient-to-r from-[#E283BD] to-[#E2CF6C] rounded-[30px] hover:opacity-90 transition-all hover:scale-105 
+                className={` px-6 py-2 text-transparent bg-clip-text bg-gradient-to-r from-[#E283BD] to-[#E2CF6C] bg-[#1E1E1E] rounded-[30px] border-[1px] border-[#E283BD] hover:border-[#E2CF6C] hover:shadow-lg transition-all hover:scale-105
                   ${!socket?.connected ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 Start Timer
@@ -153,7 +198,7 @@ export default function AdminPage() {
                 <button
                   onClick={handlePauseResume}
                   disabled={!socket?.connected}
-                  className={`px-6 py-2 text-white bg-gradient-to-r from-[#E283BD] to-[#E2CF6C] rounded-[30px] hover:opacity-90 transition-all hover:scale-105
+                  className={`px-6 py-2 text-transparent bg-clip-text bg-gradient-to-r from-[#E283BD] to-[#E2CF6C] bg-[#1E1E1E] rounded-[30px] border-[1px] border-[#E283BD] hover:border-yellow-600 hover:shadow-lg transition-all hover:scale-105
                     ${
                       !socket?.connected ? "opacity-50 cursor-not-allowed" : ""
                     }`}
@@ -163,7 +208,7 @@ export default function AdminPage() {
                 <button
                   onClick={handleStop}
                   disabled={!socket?.connected}
-                  className={`px-6 py-2 text-white bg-gradient-to-r from-[#E283BD] to-[#E2CF6C] rounded-[30px] hover:opacity-90 transition-all hover:scale-105
+                  className={`px-6 py-2 text-transparent bg-clip-text bg-gradient-to-r from-[#E283BD] to-[#E2CF6C] bg-[#1E1E1E] rounded-[30px] border-[1px] border-[#E283BD] hover:border-pink-600 hover:shadow-lg transition-all hover:scale-105
                     ${
                       !socket?.connected ? "opacity-50 cursor-not-allowed" : ""
                     }`}
