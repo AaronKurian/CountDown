@@ -6,6 +6,7 @@ import Image from "next/image";
 import io from "socket.io-client";
 import logo from "../assets/logo2.png";
 import background from "../assets/background.svg";
+import ConfirmDialog from "../components/ConfirmDialog";
 
 const motivationalQuotes = [
   "Hackathons aren't about coding, they're about creating the future.",
@@ -30,6 +31,8 @@ export default function AdminPage() {
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currentQuote, setCurrentQuote] = useState(0);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -117,10 +120,25 @@ export default function AdminPage() {
   };
 
   const handleStop = () => {
-    if (socket && socket.connected) {
-      socket.emit("timer-control", { type: "STOP" });
-      setIsRunning(false); // Set isRunning to false when stopping the timer
+    setIsDialogOpen(true); // Open the dialog when stop is pressed
+  };
+
+  const confirmStopTimer = () => {
+    if (password === "tinypp1234") {
+      if (socket && socket.connected) {
+        socket.emit("timer-control", { type: "STOP" });
+        setIsRunning(false); // Set isRunning to false when stopping the timer
+      }
+      setIsDialogOpen(false); // Close the dialog
+      setPassword(""); // Clear the password input
+    } else {
+      alert("Incorrect password. Timer not stopped."); // Alert for incorrect password
     }
+  };
+
+  const handleDialogClose = () => {
+    setIsDialogOpen(false); // Close the dialog
+    setPassword(""); // Clear the password input
   };
 
   const handleLogout = async () => {
@@ -206,7 +224,7 @@ export default function AdminPage() {
                   {isPaused ? "Resume" : "Pause"}
                 </button>
                 <button
-                  onClick={handleStop}
+                  onClick={handleStop} // Open dialog on stop button click
                   disabled={!socket?.connected}
                   className={`px-6 py-2 text-transparent bg-clip-text bg-gradient-to-r from-[#E283BD] to-[#E2CF6C] bg-[#1E1E1E] rounded-[30px] border-[1px] border-[#E283BD] hover:border-pink-600 hover:shadow-lg transition-all hover:scale-105
                     ${
@@ -220,6 +238,15 @@ export default function AdminPage() {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={isDialogOpen}
+        onClose={handleDialogClose}
+        onConfirm={confirmStopTimer}
+        password={password}
+        setPassword={setPassword}
+      />
     </div>
   );
 }

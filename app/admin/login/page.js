@@ -1,5 +1,7 @@
 "use client";
-import { useState } from 'react';
+import React, { useState } from "react";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -10,6 +12,7 @@ export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
   const router = useRouter();
 
   const handleSubmit = async (e) => {
@@ -49,15 +52,23 @@ export default function Login() {
               onChange={(e) => setUsername(e.target.value)}
               className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700"
             />
+            
           </div>
-          <div>
+          <div className="relative mb-4">
             <input
-              type="password"
-              placeholder="Password"
+            type={showPassword ? "text" : "password"} // Toggle between text and password
+            placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700"
+              className="w-full relative p-2 rounded bg-gray-800 text-white border border-gray-700"
             />
+            <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)} // Toggle password visibility
+            className="absolute right-2 top-2 text-gray-500"
+          >
+            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} /> {/* Use Font Awesome icons */}
+          </button>
           </div>
           <button
             type="submit"

@@ -4,6 +4,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import io from 'socket.io-client';
+import VideoPlayer from "./VideoPlayer";
 
 const img = "/assets/images/2.0.png";
 const i = "/assets/images/original_i_kuthu.png";
@@ -33,6 +34,7 @@ const Home = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [currentQuote, setCurrentQuote] = useState(0);
   const [connectionStatus, setConnectionStatus] = useState('connecting');
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
 
   useEffect(() => {
     let reconnectAttempts = 0;
@@ -97,20 +99,45 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    let interval;
+    let timerInterval;
+    let videoTimeout;
 
-    if (isRunning && !isPaused && time > 0) {
-      interval = setInterval(() => {
-        setTime((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
+    if (isRunning) {
+      timerInterval = setInterval(() => {
+        setTime((prevTime) => {
+          if (prevTime <= 0) {
+            clearInterval(timerInterval);
+            return 0;
+          }
+          return prevTime - 1;
+        });
       }, 1000);
+
+     // Start the video playback sequence
+        const startVideoSequence = () => {
+          setTimeout(() => {
+            playVideo(); // Play the video
+            setTimeout(() => {
+              setIsVideoOpen(false); // Close the video modal after 30 seconds
+            }, 30000); // Video duration
+          }, 10000); // Wait for 10 seconds before playing the video
+        };
+
+        // Call the video sequence every 40 seconds
+        videoTimeout = setInterval(() => {
+          if (isRunning && !isPaused) {
+            startVideoSequence();
+          }
+        }, 40000); // 10 seconds timer + 30 seconds video
+
+      startVideoSequence();
     }
 
     return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
+      clearInterval(timerInterval);
+      clearInterval(videoTimeout);
     };
-  }, [isRunning, isPaused, time]);
+  }, [isRunning, isPaused]);
 
   useEffect(() => {
     let quoteInterval;
@@ -136,9 +163,15 @@ const Home = () => {
     return `${format(hours)}:${format(minutes)}:${format(seconds)}`;
   };
 
+  const playVideo = () => {
+    setIsVideoOpen(true);
+  };
+
+ 
+
   return (
-    <main className="flex min-h-screen flex-col items-center p-36 bg-black text-white w-screen font-satoshi">
-      <Image src={background} className="bg-img" alt="Countdown background" width={100} height={100} />
+    <main className="relative flex min-h-screen flex-col items-center p-36 bg-black text-white w-screen font-satoshi">
+      <Image src={background} className="bg-img" alt="Countdown background" layout="fill" objectFit="cover" />
 
       <div className="z-10 flex items-center justify-center h-1/4 w-screen">
         <div className="flex flex-col items-center justify-center gap-0 w-screen relative">
@@ -146,7 +179,7 @@ const Home = () => {
             src={logo} 
             alt="Logo" 
             width={200}
-            className="top-0 -mt-24"
+            className="top-2 -mt-12 sm:-mt-24 mb-12"
           />
           {/* <div className="filter blur-[0.5px] font-productsansbold font-bold text-center -px-8
             text-[2.2rem] mt-20 
@@ -221,7 +254,7 @@ const Home = () => {
           <div className="mb-2 min-h-[4rem]"></div>
         )}
 
-        <span className="text-7xl sm:text-9xl font-bold timer text-white text-center block mb-10">
+        <span className="text-7xl sm:text-9xl font-bold timer text-white text-center block mb-10 mt-10 sm:mt-0">
           {formatTime(time)}
         </span>
 
@@ -236,11 +269,11 @@ const Home = () => {
 
       {connectionStatus === 'failed' && (
         <div className="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-md">
-          Failed to connect to server. Please check your internet connection and try again later.
+          Failed to Connect. Please check your internet connection and try again later.
         </div>
       )}
 
-      
+      <VideoPlayer isOpen={isVideoOpen} onClose={() => setIsVideoOpen(false)} />
     </main>
   );
 };
