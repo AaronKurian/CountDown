@@ -123,16 +123,22 @@ export default function AdminPage() {
     setIsDialogOpen(true); // Open the dialog when stop is pressed
   };
 
-  const confirmStopTimer = () => {
-    if (password === "tinypp1234") {
+  const confirmStopTimer = async () => {
+    const result = await signIn('credentials', {
+      username: 'admin', // Use the username for authentication
+      password: password, // Use the password from the input
+      redirect: false, // Prevent redirecting
+    });
+
+    if (result.error) {
+      alert("Incorrect password. Timer not stopped."); // Alert for incorrect password
+    } else {
       if (socket && socket.connected) {
         socket.emit("timer-control", { type: "STOP" });
         setIsRunning(false); // Set isRunning to false when stopping the timer
       }
       setIsDialogOpen(false); // Close the dialog
       setPassword(""); // Clear the password input
-    } else {
-      alert("Incorrect password. Timer not stopped."); // Alert for incorrect password
     }
   };
 

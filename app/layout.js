@@ -2,7 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import localFont from 'next/font/local'
 import Providers from './components/Providers';
-import logo from "./assets/logo2.png";
+import logo from "./assets/favicon.png";
 
 const satoshi = localFont({
   src: './fonts/Satoshi-Variable.ttf',
