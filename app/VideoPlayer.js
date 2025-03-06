@@ -8,7 +8,7 @@ const VideoPlayer = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-95 z-50">
       <video
         autoPlay
-        // muted
+        muted
         className="w-100vw h-100vh"
         onEnded={onClose}
         style={{ pointerEvents: "none" }}
