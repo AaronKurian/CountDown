@@ -10,9 +10,19 @@ const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev, dir: __dirname });
 const handle = app.getRequestHandler();
 
-// Global timer state
+// Set end date to March 23, 2025, 15:30:00 IST
+const END_DATE = new Date('2025-03-23T15:30:00+05:30');
+
+// Calculate remaining time function
+const calculateRemainingTime = () => {
+  const now = new Date();
+  const diffInSeconds = Math.floor((END_DATE - now) / 1000);
+  return Math.max(0, diffInSeconds);
+};
+
+// Initialize global timer with correct remaining time
 let globalTimer = {
-  time: 24 * 60 * 60,
+  time: calculateRemainingTime(),
   isRunning: false,
   isPaused: false
 };
@@ -99,12 +109,13 @@ app.prepare().then(() => {
 
       switch (action.type) {
         case 'START':
+          globalTimer.time = calculateRemainingTime();
           globalTimer.isRunning = true;
           globalTimer.isPaused = false;
           if (timerInterval) clearInterval(timerInterval);
           timerInterval = setInterval(() => {
-            if (globalTimer.isRunning && !globalTimer.isPaused && globalTimer.time > 0) {
-              globalTimer.time--;
+            if (globalTimer.isRunning && !globalTimer.isPaused) {
+              globalTimer.time = calculateRemainingTime();
               pendingUpdates.add(globalTimer);
             }
           }, 1000);
@@ -114,11 +125,12 @@ app.prepare().then(() => {
           break;
         case 'RESUME':
           globalTimer.isPaused = false;
+          globalTimer.time = calculateRemainingTime();
           break;
         case 'STOP':
           globalTimer.isRunning = false;
           globalTimer.isPaused = false;
-          globalTimer.time = 24 * 60 * 60;
+          globalTimer.time = calculateRemainingTime();
           if (timerInterval) {
             clearInterval(timerInterval);
           }

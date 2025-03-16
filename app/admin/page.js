@@ -23,11 +23,19 @@ const motivationalQuotes = [
   "Success is built in the hours when others are resting.",
 ];
 
+const END_DATE = new Date('2025-03-23T15:30:00+05:30');
+
+const calculateRemainingTime = () => {
+  const now = new Date();
+  const diffInSeconds = Math.floor((END_DATE - now) / 1000);
+  return Math.max(0, diffInSeconds);
+};
+
 export default function AdminPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [socket, setSocket] = useState(null);
-  const [time, setTime] = useState(24 * 60 * 60);
+  const [time, setTime] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currentQuote, setCurrentQuote] = useState(0);
@@ -46,6 +54,9 @@ export default function AdminPage() {
       : process.env.NEXT_PUBLIC_SOCKET_URL_PROD;
 
   useEffect(() => {
+    // Always set the correct remaining time first
+    setTime(calculateRemainingTime());
+
     const newSocket = io(socketURL, {
       transports: ["websocket", "polling"],
       reconnectionAttempts: 5,
@@ -55,6 +66,8 @@ export default function AdminPage() {
     newSocket.on("connect", () => {
       console.log("Socket connected:", newSocket.id);
       setSocket(newSocket);
+      // Reset time to correct value on connection
+      setTime(calculateRemainingTime());
     });
 
     newSocket.on("connect_error", (error) => {
@@ -62,8 +75,8 @@ export default function AdminPage() {
     });
 
     newSocket.on("time-sync", (timerState) => {
-      console.log("Received timer state:", timerState);
-      setTime(timerState.time);
+      // Always use calculated time for consistency
+      setTime(calculateRemainingTime());
       setIsRunning(timerState.isRunning);
       setIsPaused(timerState.isPaused);
     });
@@ -86,6 +99,18 @@ export default function AdminPage() {
     return () => clearInterval(quoteInterval); // Cleanup interval on component unmount or when isRunning changes
   }, [isRunning, isPaused]); // Depend on isRunning and isPaused
 
+  // Timer update effect
+  useEffect(() => {
+    let interval;
+    if (isRunning && !isPaused) {
+      // Update time every second when running
+      interval = setInterval(() => {
+        setTime(calculateRemainingTime());
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isRunning, isPaused]);
+
   const formatTime = (timeInSeconds) => {
     const hours = Math.floor(timeInSeconds / 3600);
     const minutes = Math.floor((timeInSeconds % 3600) / 60);
@@ -100,9 +125,9 @@ export default function AdminPage() {
     if (socket && socket.connected) {
       socket.emit("timer-control", {
         type: "START",
-        time: 24 * 60 * 60,
+        time: calculateRemainingTime(),
       });
-      setIsRunning(true); // Set isRunning to true when starting the timer
+      setIsRunning(true);
       console.log("Start command sent");
     } else {
       console.error("Socket not connected");
@@ -111,11 +136,18 @@ export default function AdminPage() {
 
   const handlePauseResume = () => {
     if (socket && socket.connected) {
-      socket.emit("timer-control", {
-        type: isPaused ? "RESUME" : "PAUSE",
-        time: time,
-      });
-      setIsPaused(!isPaused); // Toggle isPaused state
+      if (isPaused) {
+        socket.emit("timer-control", {
+          type: "RESUME",
+          time: calculateRemainingTime(),
+        });
+      } else {
+        socket.emit("timer-control", {
+          type: "PAUSE",
+          time: time,
+        });
+      }
+      setIsPaused(!isPaused);
     }
   };
 
@@ -125,20 +157,23 @@ export default function AdminPage() {
 
   const confirmStopTimer = async () => {
     const result = await signIn('credentials', {
-      username: 'admin', // Use the username for authentication
-      password: password, // Use the password from the input
-      redirect: false, // Prevent redirecting
+      username: 'admin',
+      password: password,
+      redirect: false,
     });
 
     if (result.error) {
-      alert("Incorrect password. Timer not stopped."); // Alert for incorrect password
+      alert("Incorrect password. Timer not stopped.");
     } else {
       if (socket && socket.connected) {
-        socket.emit("timer-control", { type: "STOP" });
-        setIsRunning(false); // Set isRunning to false when stopping the timer
+        socket.emit("timer-control", { 
+          type: "STOP",
+          time: calculateRemainingTime()
+        });
+        setIsRunning(false);
       }
-      setIsDialogOpen(false); // Close the dialog
-      setPassword(""); // Clear the password input
+      setIsDialogOpen(false);
+      setPassword("");
     }
   };
 

@@ -27,114 +27,90 @@ const motivationalQuotes = [
   "Success is built in the hours when others are resting.",
 ];
 
+const END_DATE = new Date('2025-03-23T15:30:00+05:30');
+
+const calculateRemainingTime = () => {
+  const now = new Date();
+  const diffInSeconds = Math.floor((END_DATE - now) / 1000);
+  return Math.max(0, diffInSeconds);
+};
+
 const Home = () => {
   const [socket, setSocket] = useState(null);
-  const [time, setTime] = useState(24 * 60 * 60);
+  const [time, setTime] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currentQuote, setCurrentQuote] = useState(0);
-  const [connectionStatus, setConnectionStatus] = useState('connecting');
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState('connecting');
+
+  const socketURL = process.env.NODE_ENV === "development"
+    ? process.env.NEXT_PUBLIC_SOCKET_URL_LOCAL
+    : process.env.NEXT_PUBLIC_SOCKET_URL_PROD;
 
   useEffect(() => {
-    let reconnectAttempts = 0;
-    const maxReconnectAttempts = 5;
+    setTime(calculateRemainingTime());
 
-    const connectSocket = () => {
-      const newSocket = io({
-        path: '/socket.io',
-        transports: ['websocket', 'polling'],
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000 * (1 + Math.random()),
-        timeout: 20000,
-        autoConnect: true,
-        forceNew: true,
-        secure: true,
-        randomizationFactor: 0.5,
-        reconnectionDelayMax: 5000,
-        volatile: true
-      });
+    const newSocket = io(socketURL, {
+      transports: ["websocket", "polling"],
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+    });
 
-      newSocket.on('connect', () => {
-        console.log('Connected to server:', newSocket.id);
-        setConnectionStatus('connected');
-        setSocket(newSocket);
-        reconnectAttempts = 0;
-      });
+    newSocket.on("connect", () => {
+      console.log("Socket connected:", newSocket.id);
+      setSocket(newSocket);
+      setConnectionStatus('connected');
+      setTime(calculateRemainingTime());
+    });
 
-      newSocket.on('disconnect', (reason) => {
-        console.log('Disconnected from server:', reason);
-        setConnectionStatus('disconnected');
-      });
+    newSocket.on("connect_error", () => {
+      setConnectionStatus('failed');
+    });
 
-      newSocket.on('connect_error', (error) => {
-        console.error('Connection error:', error);
-        setConnectionStatus('error');
-        reconnectAttempts++;
-
-        if (reconnectAttempts >= maxReconnectAttempts) {
-          console.log('Max reconnection attempts reached');
-          newSocket.close();
-          setConnectionStatus('failed');
-        }
-      });
-
-      newSocket.on('time-sync', (timerState) => {
-        console.log('Received timer state:', timerState);
-        setTime(timerState.time);
-        setIsRunning(timerState.isRunning);
-        setIsPaused(timerState.isPaused);
-      });
-
-      return newSocket;
-    };
-
-    const socket = connectSocket();
+    newSocket.on("time-sync", (timerState) => {
+      setTime(calculateRemainingTime());
+      setIsRunning(timerState.isRunning);
+      setIsPaused(timerState.isPaused);
+    });
 
     return () => {
-      if (socket) {
-        socket.close();
-      }
+      if (newSocket) newSocket.close();
     };
-  }, []);
+  }, [socketURL]);
 
+  // Timer update effect
   useEffect(() => {
-    let timerInterval;
+    let interval;
     let videoTimeout;
 
-    if (isRunning) {
-      timerInterval = setInterval(() => {
-        setTime((prevTime) => {
-          if (prevTime <= 0) {
-            clearInterval(timerInterval);
-            return 0;
-          }
-          return prevTime - 1;
-        });
+    if (isRunning && !isPaused) {
+      interval = setInterval(() => {
+        setTime(calculateRemainingTime());
       }, 1000);
 
-     // Start the video playback sequence
-        const startVideoSequence = () => {
+      // Start the video playback sequence
+      const startVideoSequence = () => {
+        setTimeout(() => {
+          setIsVideoOpen(true); // Play the video
           setTimeout(() => {
-            playVideo(); // Play the video
-            setTimeout(() => {
-              setIsVideoOpen(false); // Close the video modal after 30 seconds
-            }, 30000); // Video duration
-          }, 10000); // Wait for 10 seconds before playing the video
-        };
+            setIsVideoOpen(false); // Close the video modal after 30 seconds
+          }, 30000); // Video duration
+        }, 10000); // Wait for 10 seconds before playing the video
+      };
 
-        // Call the video sequence every 40 seconds
-        videoTimeout = setInterval(() => {
-          if (isRunning && !isPaused) {
-            startVideoSequence();
-          }
-        }, 40000); // 10 seconds timer + 30 seconds video
+      // Call the video sequence every 40 seconds
+      videoTimeout = setInterval(() => {
+        if (isRunning && !isPaused) {
+          startVideoSequence();
+        }
+      }, 40000); // 10 seconds timer + 30 seconds video
 
       startVideoSequence();
     }
 
     return () => {
-      clearInterval(timerInterval);
+      clearInterval(interval);
       clearInterval(videoTimeout);
     };
   }, [isRunning, isPaused]);
@@ -166,8 +142,6 @@ const Home = () => {
   const playVideo = () => {
     setIsVideoOpen(true);
   };
-
- 
 
   return (
     <main className="relative flex min-h-screen flex-col items-center p-36 bg-black text-white w-screen font-satoshi">
@@ -254,9 +228,11 @@ const Home = () => {
           <div className="mb-2 min-h-[4rem]"></div>
         )}
 
-        <span className="text-7xl sm:text-9xl font-bold timer text-white text-center block mb-10 mt-10 sm:mt-0">
-          {formatTime(time)}
-        </span>
+        {time !== null && (
+          <span className="text-7xl sm:text-9xl font-bold timer text-white text-center block mb-10 mt-10 sm:mt-0">
+            {formatTime(time)}
+          </span>
+        )}
 
         {time === 0 && (
           <p className="text-4xl text-center mt-8">Hackathon has ended! 🎉</p>
