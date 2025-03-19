@@ -55,7 +55,7 @@ const VideoPlayer = ({ isOpen, onClose }) => {
           playsInline
           loop={false}
         >
-          <source src="/ad.mp4" type="video/mp4" />
+          <source src="/ad1.mp4" type="video/mp4" />
           Your browser does not support the video.
         </video>
         
