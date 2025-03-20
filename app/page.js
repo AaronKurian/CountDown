@@ -27,7 +27,7 @@ const motivationalQuotes = [
   "Success is built in the hours when others are resting.",
 ];
 
-const END_DATE = new Date('2025-03-23T15:30:00+05:30');
+const END_DATE = new Date('2025-03-23T15:00:00+05:30');
 
 const calculateRemainingTime = () => {
   const now = new Date();
