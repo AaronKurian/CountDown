@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import io from 'socket.io-client';
 import VideoPlayer from "./VideoPlayer";
+import timelineSvg from "./assets/timeline.svg";
+import landingpage3Svg from "./assets/landing_page_3.svg";
 
 const img = "/assets/images/2.0.png";
 const i = "/assets/images/original_i_kuthu.png";
@@ -144,13 +146,64 @@ const Home = () => {
     return `${format(hours)}:${format(minutes)}:${format(seconds)}`;
   };
 
-  const playVideo = () => {
-    setIsVideoOpen(true);
-  };
+    const playVideo = () => {
+      setIsVideoOpen(true);
+    };
+    const [imageSize, setImageSize] = useState(250); // Default size for larger screens
 
+    useEffect(() => {
+      const updateSize = () => {
+        setImageSize(window.innerWidth < 640 ? 150 : 250); // Resize dynamically
+      };
+
+      updateSize(); // Set size on mount
+      window.addEventListener("resize", updateSize); // Listen for window resize
+
+      return () => window.removeEventListener("resize", updateSize); // Cleanup
+    }, []);
   return (
-    <main className="relative flex min-h-screen flex-col items-center p-36 bg-black text-white w-screen font-satoshi">
+    <main className="relative flex min-h-screen flex-col items-center p-36 bg-black text-white w-screen font-satoshi overflow-hidden">
       <Image src={background} className="bg-img" alt="Countdown background" layout="fill" objectFit="cover" />
+      
+      {/* Top right corner - timeline.svg */}
+      <div className="absolute top-0 -mt-60 right-0 z-10">
+        <Image 
+          src={timelineSvg} 
+          alt="Timeline decoration" 
+          width={350} 
+          height={350}
+        />
+      </div>
+      
+      {/* Top left corner - timeline.svg flipped */}
+      <div className="absolute top-0 -mt-16 left-0 z-10" style={{ transform: 'scale(-1, -1)' }}>
+        <Image 
+          src={timelineSvg} 
+          alt="Timeline decoration flipped" 
+          width={300} 
+          height={300}
+        />
+      </div>
+      
+      {/* Bottom right corner */}
+      <div className="absolute bottom-0 -mb-20 md:-mb-44 overflow-hidden right-0 z-10">
+        <Image 
+          src={landingpage3Svg} 
+          alt="Landing page decoration" 
+          width={imageSize} 
+          height={imageSize} 
+        />
+      </div>
+
+      {/* Bottom left corner */}
+      <div className="absolute bottom-0 left-0 -mb-16 md:-mb-20 overflow-hidden z-10" style={{ transform: "scale(-1,-1)" }}>
+        <Image 
+          src={landingpage3Svg} 
+          alt="Landing page decoration flipped" 
+          width={imageSize} 
+          height={imageSize} 
+        />
+      </div>
 
       <div className="z-10 flex items-center justify-center h-1/4 w-screen">
         <div className="flex flex-col items-center justify-center gap-0 w-screen relative">
