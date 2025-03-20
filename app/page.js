@@ -96,16 +96,21 @@ const Home = () => {
           setTimeout(() => {
             setIsVideoOpen(false); // Close the video modal after 30 seconds
           }, 30000); // Video duration
-        }, 10000); // Wait for 10 seconds before playing the video
+        }, 10000); // Wait for 10 seconds before playing the video initially
       };
 
-      // Call the video sequence every 40 seconds
+      // Call the video sequence every 2 hours and 7 minutes (plus 30 seconds for video duration)
       videoTimeout = setInterval(() => {
         if (isRunning && !isPaused) {
-          startVideoSequence();
+          // For subsequent plays, we don't need the initial 10-second delay
+          setIsVideoOpen(true); // Play the video
+          setTimeout(() => {
+            setIsVideoOpen(false); // Close the video modal after 30 seconds
+          }, 30000); // Video duration
         }
-      }, 40000); // 10 seconds timer + 30 seconds video
+      }, 7620000 + 30000); // 2hrs 7min (7620000ms) + 30sec for video duration
 
+      // Start the first video sequence with the initial 10-second delay
       startVideoSequence();
     }
 
@@ -235,7 +240,7 @@ const Home = () => {
         )}
 
         {time === 0 && (
-          <p className="text-4xl text-center mt-8">Hackathon has ended! 🎉</p>
+          <p className="text-4xl text-center mt-8">Hackathon has Ended! 🎉</p>
         )}
 
         <div className="text-center text-transparent mt-4">
