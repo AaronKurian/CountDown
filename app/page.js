@@ -287,9 +287,13 @@ const Home = () => {
         )}
 
         {time !== null && (
-          <span className="text-7xl sm:text-9xl font-bold timer text-white text-center block mb-10 mt-10 sm:mt-0">
-            {formatTime(time)}
-          </span>
+          <div className="flex flex-col items-center justify-center">
+            <div className="w-[320px] sm:w-[480px] flex justify-center">
+              <span className="text-7xl sm:text-9xl font-bold  text-white block mb-10 mt-10 sm:mt-0 tabular-nums">
+                {formatTime(time)}
+              </span>
+            </div>
+          </div>
         )}
 
         {time === 0 && (
@@ -307,7 +311,7 @@ const Home = () => {
         </div>
       )}
 
-      <VideoPlayer isOpen={isVideoOpen} onClose={() => setIsVideoOpen(false)} />
+      {/* <VideoPlayer isOpen={isVideoOpen} onClose={() => setIsVideoOpen(false)} /> */}
     </main>
   );
 };
