@@ -45,6 +45,7 @@ const Home = () => {
   const [currentQuote, setCurrentQuote] = useState(0);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState('connecting');
+  const [announcements, setAnnouncements] = useState([]);
 
   const socketURL = process.env.NODE_ENV === "development"
     ? process.env.NEXT_PUBLIC_SOCKET_URL_LOCAL
@@ -161,6 +162,28 @@ const Home = () => {
 
       return () => window.removeEventListener("resize", updateSize); // Cleanup
     }, []);
+
+  useEffect(() => {
+    // Fetch the current announcements
+    const fetchAnnouncements = async () => {
+      try {
+        const response = await fetch('/api/announcement');
+        if (response.ok) {
+          const data = await response.json();
+          setAnnouncements(data.announcements || []);
+        }
+      } catch (error) {
+        console.error("Error fetching announcements:", error);
+      }
+    };
+    
+    fetchAnnouncements();
+    
+    // Fetch periodically to keep in sync
+    const interval = setInterval(fetchAnnouncements, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <main className="relative flex min-h-screen flex-col items-center p-36 bg-black text-white w-screen font-satoshi overflow-hidden">
       <Image src={background} className="bg-img" alt="Countdown background" layout="fill" objectFit="cover" />
@@ -279,9 +302,26 @@ const Home = () => {
 
       <section className="flex-col z-50">
         {isRunning && !isPaused && time > 0 ? (
-          <div className="text-md sm:text-2xl font-bold text-center mb-2 text-gray-400 transition-opacity duration-500 ease-in-out min-h-[4rem]">
-            {motivationalQuotes[currentQuote]}
-          </div>
+          <>
+            {announcements.length > 0 ? (
+              // Show announcements instead of quotes
+              <div className="text-md sm:text-2xl font-bold text-center mb-2 transition-opacity duration-500 ease-in-out min-h-[4rem]">
+                {announcements.map((item) => (
+                  <div 
+                    key={item.id} 
+                    className="font-extrabold text-3xl sm:text-5xl text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-yellow-600 bg-[#1E1E1E] rounded-[30px] px-4 py-2 rounded-md shadow-none mb-4 -mt-6"
+                  >
+                    <p className="font-bold">{item.text}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // Show motivational quotes when no announcements
+              <div className="text-md sm:text-2xl font-bold text-center mb-2 text-gray-400 transition-opacity duration-500 ease-in-out min-h-[4rem]">
+                {motivationalQuotes[currentQuote]}
+              </div>
+            )}
+          </>
         ) : (
           <div className="mb-2 min-h-[4rem]"></div>
         )}
@@ -289,7 +329,7 @@ const Home = () => {
         {time !== null && (
           <div className="flex flex-col items-center justify-center">
             <div className="w-[320px] sm:w-[480px] flex justify-center">
-              <span className="text-7xl sm:text-9xl font-bold  text-white block mb-10 mt-10 sm:mt-0 tabular-nums">
+              <span className="text-7xl sm:text-9xl font-bold text-white block mb-10 mt-10 sm:mt-0 tabular-nums">
                 {formatTime(time)}
               </span>
             </div>

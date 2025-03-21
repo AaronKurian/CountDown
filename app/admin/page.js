@@ -41,6 +41,8 @@ export default function AdminPage() {
   const [currentQuote, setCurrentQuote] = useState(0);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [password, setPassword] = useState("");
+  const [announcement, setAnnouncement] = useState("");
+  const [announcements, setAnnouncements] = useState([]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -110,6 +112,27 @@ export default function AdminPage() {
     }
     return () => clearInterval(interval);
   }, [isRunning, isPaused]);
+
+  useEffect(() => {
+    // Fetch the current announcements on component mount
+    const fetchAnnouncements = async () => {
+      try {
+        const response = await fetch('/api/announcement');
+        if (response.ok) {
+          const data = await response.json();
+          setAnnouncements(data.announcements || []);
+        }
+      } catch (error) {
+        console.error("Error fetching announcements:", error);
+      }
+    };
+    
+    fetchAnnouncements();
+    
+    // Fetch periodically to keep in sync
+    const interval = setInterval(fetchAnnouncements, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const formatTime = (timeInSeconds) => {
     const hours = Math.floor(timeInSeconds / 3600);
@@ -185,6 +208,85 @@ export default function AdminPage() {
   const handleLogout = async () => {
     await signOut({ redirect: false });
     router.push("/admin/login");
+  };
+
+  const submitAnnouncement = async () => {
+    if (!announcement.trim()) return;
+    
+    try {
+      console.log("Adding announcement:", announcement);
+      const response = await fetch('/api/announcement', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          action: 'add',
+          text: announcement 
+        }),
+      });
+      
+      if (response.ok) {
+        console.log("Announcement added successfully");
+        setAnnouncement(""); // Clear the input field
+        
+        // Update the announcements list
+        const result = await response.json();
+        setAnnouncements(result.announcements || []);
+      } else {
+        console.error("Failed to add announcement");
+      }
+    } catch (error) {
+      console.error("Error adding announcement:", error);
+    }
+  };
+
+  const removeAnnouncement = async (id) => {
+    try {
+      const response = await fetch('/api/announcement', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          action: 'remove',
+          id: id 
+        }),
+      });
+      
+      if (response.ok) {
+        console.log("Announcement removed successfully");
+        
+        // Update the announcements list
+        const result = await response.json();
+        setAnnouncements(result.announcements || []);
+      } else {
+        console.error("Failed to remove announcement");
+      }
+    } catch (error) {
+      console.error("Error removing announcement:", error);
+    }
+  };
+
+  const clearAllAnnouncements = async () => {
+    try {
+      const response = await fetch('/api/announcement', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: 'clear' }),
+      });
+      
+      if (response.ok) {
+        console.log("All announcements cleared");
+        setAnnouncements([]);
+      } else {
+        console.error("Failed to clear announcements");
+      }
+    } catch (error) {
+      console.error("Error clearing announcements:", error);
+    }
   };
 
   if (status === "loading") {
@@ -277,6 +379,54 @@ export default function AdminPage() {
               </>
             )}
           </div>
+        </div>
+
+        <div className="mt-12 border-t pt-6 border-gray-700">
+          <h2 className="text-2xl mb-4">Announcements</h2>
+          
+          <div className="flex flex-col sm:flex-row gap-2 mb-4">
+            <input
+              type="text"
+              value={announcement}
+              onChange={(e) => setAnnouncement(e.target.value)}
+              placeholder="Enter announcement text"
+              className="flex-grow p-2 rounded bg-gray-800 text-white border border-gray-700"
+            />
+            <button
+              onClick={submitAnnouncement}
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            >
+              Add
+            </button>
+          </div>
+          
+          {announcements.length > 0 && (
+            <div className="mt-4">
+              <div className="flex justify-between mb-2">
+                <h3 className="text-xl">Current Announcements</h3>
+                <button
+                  onClick={clearAllAnnouncements}
+                  className="bg-red-600 text-white px-3 py-1 min-w-24 text-sm rounded hover:bg-red-700"
+                >
+                  Clear All
+                </button>
+              </div>
+              
+              <div className="space-y-2">
+                {announcements.map((item) => (
+                  <div key={item.id} className="flex justify-between items-center p-3 bg-gray-800 rounded">
+                    <p className="text-white">{item.text}</p>
+                    <button
+                      onClick={() => removeAnnouncement(item.id)}
+                      className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 ml-2"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
