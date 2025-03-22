@@ -12,7 +12,7 @@ const img = "/assets/images/2.0.png";
 const i = "/assets/images/original_i_kuthu.png";
 
 import background from "./assets/background.svg";
-import logo from "./assets/logo2.png";
+import logo from "./assets/logo.png";
 
 const motivationalQuotes = [
   "Hackathons aren't about coding, they're about creating the future.",
@@ -351,7 +351,7 @@ const Home = () => {
         </div>
       )}
 
-      {/* <VideoPlayer isOpen={isVideoOpen} onClose={() => setIsVideoOpen(false)} /> */}
+      <VideoPlayer isOpen={isVideoOpen} onClose={() => setIsVideoOpen(false)} />
     </main>
   );
 };

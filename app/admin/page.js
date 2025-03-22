@@ -4,7 +4,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import io from "socket.io-client";
-import logo from "../assets/logo2.png";
+import logo from "../assets/logo.png";
 import background from "../assets/background.svg";
 import ConfirmDialog from "../components/ConfirmDialog";
 
