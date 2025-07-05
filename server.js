@@ -157,6 +157,45 @@ app.prepare().then(() => {
   // Compression middleware
   expressApp.use(compression());
 
+  // Add basic rate limiting protection
+  const requestCounts = new Map();
+  const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+  const MAX_REQUESTS_PER_WINDOW = 100; // Generous limit
+
+  expressApp.use((req, res, next) => {
+    const clientIP = req.ip || req.connection.remoteAddress;
+    const now = Date.now();
+    
+    // Clean old entries
+    for (const [ip, data] of requestCounts.entries()) {
+      if (now - data.resetTime > RATE_LIMIT_WINDOW) {
+        requestCounts.delete(ip);
+      }
+    }
+    
+    // Check current client
+    if (!requestCounts.has(clientIP)) {
+      requestCounts.set(clientIP, { count: 1, resetTime: now });
+    } else {
+      const clientData = requestCounts.get(clientIP);
+      if (now - clientData.resetTime > RATE_LIMIT_WINDOW) {
+        // Reset window
+        clientData.count = 1;
+        clientData.resetTime = now;
+      } else {
+        clientData.count++;
+        if (clientData.count > MAX_REQUESTS_PER_WINDOW) {
+          return res.status(429).json({ 
+            error: 'Too Many Requests',
+            retryAfter: Math.ceil((RATE_LIMIT_WINDOW - (now - clientData.resetTime)) / 1000)
+          });
+        }
+      }
+    }
+    
+    next();
+  });
+
   // Handle all requests with Next.js
   expressApp.all('*', (req, res) => {
     return handle(req, res);

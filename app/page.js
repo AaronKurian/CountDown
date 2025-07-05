@@ -8,8 +8,7 @@ import VideoPlayer from "./VideoPlayer";
 import timelineSvg from "./assets/timeline.svg";
 import landingpage3Svg from "./assets/landing_page_3.svg";
 
-const img = "/assets/images/2.0.png";
-const i = "/assets/images/original_i_kuthu.png";
+
 
 import background from "./assets/background.svg";
 import logo from "./assets/logo.png";
@@ -29,7 +28,7 @@ const motivationalQuotes = [
   "Success is built in the hours when others are resting.",
 ];
 
-const END_DATE = new Date('2025-03-23T15:00:00+05:30');
+const END_DATE = new Date('2026-04-23T15:00:00+05:30');
 
 const calculateRemainingTime = () => {
   const now = new Date();
