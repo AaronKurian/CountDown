@@ -28,7 +28,7 @@ const motivationalQuotes = [
   "Success is built in the hours when others are resting.",
 ];
 
-const END_DATE = new Date('2026-04-23T15:00:00+05:30');
+const END_DATE = new Date('2025-08-02T10:30:00+05:30');
 
 const calculateRemainingTime = () => {
   const now = new Date();
@@ -227,14 +227,14 @@ const Home = () => {
         />
       </div>
 
-      <div className="z-10 flex items-center justify-center h-1/4 w-screen">
+      <div className="z-10 flex items-center justify-center h-1/4 w-screen mt-20">
         <div className="flex flex-col items-center justify-center gap-0 w-screen relative">
-          <Image 
+          {/* <Image 
             src={logo} 
             alt="Logo" 
             width={200}
             className="top-2 -mt-12 sm:-mt-24 mb-12"
-          />
+          /> */}
           {/* <div className="filter blur-[0.5px] font-productsansbold font-bold text-center -px-8
             text-[2.2rem] mt-20 
             sm:text-[3rem] sm:mt-20 
@@ -350,7 +350,7 @@ const Home = () => {
         </div>
       )}
 
-      <VideoPlayer isOpen={isVideoOpen} onClose={() => setIsVideoOpen(false)} />
+      {/* <VideoPlayer isOpen={isVideoOpen} onClose={() => setIsVideoOpen(false)} /> */}
     </main>
   );
 };
