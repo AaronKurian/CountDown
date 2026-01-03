@@ -10,7 +10,7 @@ import landingpage3Svg from "./assets/landing_page_3.svg";
 
 
 
-import background from "./assets/background.svg";
+import bg from "./assets/bg1.png";
 import logo from "./assets/logo.png";
 
 const motivationalQuotes = [
@@ -28,7 +28,7 @@ const motivationalQuotes = [
   "Success is built in the hours when others are resting.",
 ];
 
-const END_DATE = new Date('2025-08-02T08:00:00+05:30');
+export const END_DATE = new Date('2026-01-05T07:00:00+05:30');
 
 const calculateRemainingTime = () => {
   const now = new Date();
@@ -185,9 +185,9 @@ const Home = () => {
 
   return (
     <main className="relative flex min-h-screen flex-col items-center p-36 bg-black text-white w-screen font-satoshi overflow-hidden">
-      <Image src={background} className="bg-img" alt="Countdown background" layout="fill" objectFit="cover" />
+      <Image src={bg} fill className="object-cover" alt="Countdown background" />
       
-      {/* Top right corner - timeline.svg */}
+      {/* Top right corner - timeline.svg 
       <div className="absolute top-0 -mt-60 right-0 z-10">
         <Image 
           src={timelineSvg} 
@@ -197,7 +197,7 @@ const Home = () => {
         />
       </div>
       
-      {/* Top left corner - timeline.svg flipped */}
+      {/* Top left corner - timeline.svg flipped
       <div className="absolute top-0 -mt-16 left-0 z-10" style={{ transform: 'scale(-1, -1)' }}>
         <Image 
           src={timelineSvg} 
@@ -207,7 +207,7 @@ const Home = () => {
         />
       </div>
       
-      {/* Bottom right corner */}
+      {/* Bottom right corner
       <div className="absolute bottom-0 -mb-20 md:-mb-44 overflow-hidden right-0 z-10">
         <Image 
           src={landingpage3Svg} 
@@ -217,7 +217,7 @@ const Home = () => {
         />
       </div>
 
-      {/* Bottom left corner */}
+      {/* Bottom left corner
       <div className="absolute bottom-0 left-0 -mb-16 md:-mb-20 overflow-hidden z-10" style={{ transform: "scale(-1,-1)" }}>
         <Image 
           src={landingpage3Svg} 
@@ -226,6 +226,8 @@ const Home = () => {
           height={imageSize} 
         />
       </div>
+      */}
+      
 
       <div className="z-10 flex items-center justify-center h-1/4 w-screen mt-20">
         <div className="flex flex-col items-center justify-center gap-0 w-screen relative">
@@ -299,7 +301,7 @@ const Home = () => {
         </div>
       </div>
 
-      <section className="flex-col z-50">
+      <section className="flex-col z-50 -mt-32">
         {isRunning && !isPaused && time > 0 ? (
           <>
             {announcements.length > 0 ? (
@@ -308,7 +310,7 @@ const Home = () => {
                 {announcements.map((item) => (
                   <div 
                     key={item.id} 
-                    className="font-extrabold text-3xl sm:text-5xl text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-yellow-600 bg-[#1E1E1E] rounded-[30px] px-4 py-2 rounded-md shadow-none mb-4 -mt-6"
+                    className="font-extrabold text-3xl sm:text-5xl text-transparent bg-clip-text bg-gradient-to-br from-[#a23204] via-[#f1a72d] to-[#a23204] px-4 py-2 rounded-md shadow-none mb-4 -mt-6"
                   >
                     <p className="font-bold">{item.text}</p>
                   </div>
@@ -336,7 +338,7 @@ const Home = () => {
         )}
 
         {time === 0 && (
-          <p className="text-4xl text-center mt-8">Hackathon has Ended! 🎉</p>
+          <p className="text-4xl text-center mt-8">Hackathon has Ended!</p>
         )}
 
         <div className="text-center text-transparent mt-4">

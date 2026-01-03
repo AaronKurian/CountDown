@@ -7,6 +7,7 @@ import io from "socket.io-client";
 import logo from "../assets/logo.png";
 import background from "../assets/background.svg";
 import ConfirmDialog from "../components/ConfirmDialog";
+import { END_DATE } from "../page";
 
 const motivationalQuotes = [
   "Hackathons aren't about coding, they're about creating the future.",
@@ -22,8 +23,6 @@ const motivationalQuotes = [
   "Sleep is optional. Innovation is not.",
   "Success is built in the hours when others are resting.",
 ];
-
-const END_DATE = new Date('2025-08-02T08:00:00+05:30');
 
 const calculateRemainingTime = () => {
   const now = new Date();
