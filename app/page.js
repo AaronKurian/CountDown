@@ -10,7 +10,7 @@ import landingpage3Svg from "./assets/landing_page_3.svg";
 
 
 
-import bg from "./assets/bg1.png";
+import bg from "./assets/bg2.png";
 import logo from "./assets/logo.png";
 
 const motivationalQuotes = [
