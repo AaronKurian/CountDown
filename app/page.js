@@ -7,10 +7,7 @@ import io from 'socket.io-client';
 import VideoPlayer from "./VideoPlayer";
 import timelineSvg from "./assets/timeline.svg";
 import landingpage3Svg from "./assets/landing_page_3.svg";
-
-
-
-import bg from "./assets/bg2.png";
+import bg from "./assets/thh1.svg";
 import logo from "./assets/logo.png";
 
 const motivationalQuotes = [
@@ -28,7 +25,7 @@ const motivationalQuotes = [
   "Success is built in the hours when others are resting.",
 ];
 
-export const END_DATE = new Date('2026-01-05T07:00:00+05:30');
+export const END_DATE = new Date('2026-02-28T08:30:00+05:30');
 
 const calculateRemainingTime = () => {
   const now = new Date();
@@ -301,7 +298,7 @@ const Home = () => {
         </div>
       </div>
 
-      <section className="flex-col z-50 -mt-32">
+      <section className="flex-col z-50 -mt-16">
         {isRunning && !isPaused && time > 0 ? (
           <>
             {announcements.length > 0 ? (
@@ -310,7 +307,7 @@ const Home = () => {
                 {announcements.map((item) => (
                   <div 
                     key={item.id} 
-                    className="font-extrabold text-3xl sm:text-5xl text-transparent bg-clip-text bg-gradient-to-br from-[#a23204] via-[#f1a72d] to-[#a23204] px-4 py-2 rounded-md shadow-none mb-4 -mt-6"
+                    className="font-extrabold text-3xl sm:text-5xl text-transparent bg-clip-text bg-gradient-to-br from-[#ce29ba] via-[#ea7af0] to-[#ce29ba] px-4 py-2 rounded-md shadow-none mb-4 -mt-6"
                   >
                     <p className="font-bold">{item.text}</p>
                   </div>
@@ -318,7 +315,7 @@ const Home = () => {
               </div>
             ) : (
               // Show motivational quotes when no announcements
-              <div className="text-md sm:text-2xl font-bold text-center mb-2 text-gray-400 transition-opacity duration-500 ease-in-out min-h-[4rem]">
+              <div className="text-md sm:text-2xl font-extrabold text-center mb-2 text-pink-600 transition-opacity duration-500 ease-in-out min-h-[4rem]">
                 {motivationalQuotes[currentQuote]}
               </div>
             )}
