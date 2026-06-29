@@ -62,7 +62,7 @@ const VideoPlayer = ({ isOpen, onClose }) => {
         {!audioEnabled && (
           <button 
             onClick={handleUnmute}
-            className="absolute -bottom-48 sm:bottom-12 right-2 px-2 py-1 sm:px-4 sm:py-2 bg-white text-black text-sm sm:text-basefont-medium rounded-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-white"
+            className="absolute -bottom-48 sm:bottom-12 right-2 cursor-pointer px-2 py-1 sm:px-4 sm:py-2 bg-white text-black text-sm sm:text-basefont-medium rounded-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-white"
             style={{ pointerEvents: "auto" }}
           >
             Enable Sound

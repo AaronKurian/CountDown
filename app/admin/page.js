@@ -246,7 +246,7 @@ export default function AdminPage() {
             <span className={`h-3 w-3 rounded-full ${socket?.connected ? "bg-green-500" : "bg-red-500"}`} />
             <button
               onClick={handleLogout}
-              className="rounded bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
+              className="cursor-pointer rounded bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
             >
               Logout
             </button>
@@ -279,7 +279,7 @@ export default function AdminPage() {
             <button
               onClick={handleSetTarget}
               disabled={!socket?.connected}
-              className="rounded border border-[#E283BD] bg-[#1E1E1E] px-5 py-2 font-semibold text-white transition-colors hover:border-[#E2CF6C] disabled:cursor-not-allowed disabled:opacity-50"
+              className="cursor-pointer rounded border border-[#E283BD] bg-[#1E1E1E] px-5 py-2 font-semibold text-white transition-colors hover:border-[#E2CF6C] disabled:cursor-not-allowed disabled:opacity-50"
             >
               Set Time
             </button>
@@ -290,7 +290,7 @@ export default function AdminPage() {
               <button
                 onClick={handleStart}
                 disabled={!socket?.connected || !targetTime}
-                className="rounded border border-[#E283BD] bg-[#1E1E1E] px-6 py-2 font-semibold text-white transition-colors hover:border-[#E2CF6C] disabled:cursor-not-allowed disabled:opacity-50"
+                className="cursor-pointer rounded border border-[#E283BD] bg-[#1E1E1E] px-6 py-2 font-semibold text-white transition-colors hover:border-[#E2CF6C] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Start Timer
               </button>
@@ -299,14 +299,14 @@ export default function AdminPage() {
                 <button
                   onClick={handlePauseResume}
                   disabled={!socket?.connected}
-                  className="rounded border border-[#E283BD] bg-[#1E1E1E] px-6 py-2 font-semibold text-white transition-colors hover:border-yellow-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="cursor-pointer rounded border border-[#E283BD] bg-[#1E1E1E] px-6 py-2 font-semibold text-white transition-colors hover:border-yellow-600 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isPaused ? "Resume" : "Pause"}
                 </button>
                 <button
                   onClick={() => setIsDialogOpen(true)}
                   disabled={!socket?.connected}
-                  className="rounded border border-[#E283BD] bg-[#1E1E1E] px-6 py-2 font-semibold text-white transition-colors hover:border-pink-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="cursor-pointer rounded border border-[#E283BD] bg-[#1E1E1E] px-6 py-2 font-semibold text-white transition-colors hover:border-pink-600 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Stop
                 </button>
@@ -327,7 +327,7 @@ export default function AdminPage() {
               maxLength={240}
               className="flex-grow rounded border border-gray-700 bg-gray-800 p-2 text-white"
             />
-            <button onClick={submitAnnouncement} className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
+            <button onClick={submitAnnouncement} className="cursor-pointer rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
               Add
             </button>
           </div>
@@ -336,7 +336,7 @@ export default function AdminPage() {
             <div className="mt-4">
               <div className="mb-2 flex justify-between">
                 <h3 className="text-xl">Current Announcements</h3>
-                <button onClick={clearAllAnnouncements} className="min-w-24 rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700">
+                <button onClick={clearAllAnnouncements} className="min-w-24 cursor-pointer rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700">
                   Clear All
                 </button>
               </div>
@@ -347,7 +347,7 @@ export default function AdminPage() {
                     <p className="text-white">{item.text}</p>
                     <button
                       onClick={() => removeAnnouncement(item.id)}
-                      className="ml-2 rounded bg-red-600 px-2 py-1 text-white hover:bg-red-700"
+                      className="ml-2 cursor-pointer rounded bg-red-600 px-2 py-1 text-white hover:bg-red-700"
                     >
                       Remove
                     </button>
