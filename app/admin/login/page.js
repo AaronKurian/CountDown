@@ -65,14 +65,14 @@ export default function Login() {
             <button
             type="button"
             onClick={() => setShowPassword(!showPassword)} // Toggle password visibility
-            className="absolute right-2 top-2 text-gray-500"
+            className="absolute right-2 top-2 cursor-pointer text-gray-500"
           >
             <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} /> {/* Use Font Awesome icons */}
           </button>
           </div>
           <button
             type="submit"
-            className="w-full py-2 px-4 bg-gradient-to-br from-pink-600 to-yellow-600 text-white rounded hover:bg-blue-700 transition-colors"
+            className="w-full cursor-pointer py-2 px-4 bg-gradient-to-br from-pink-600 to-yellow-600 text-white rounded hover:bg-blue-700 transition-colors"
           >
             Login
           </button>
