@@ -1,8 +1,14 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --font-satoshi: var(--font-satoshi-family), sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
 
 :root {
+  --foreground: #ffffff;
+  --background: #000000;
   --foreground-rgb: 255, 255, 255;
   --background-start-rgb: 0, 0, 0;
   --background-end-rgb: 0, 0, 0;

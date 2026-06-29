@@ -1,7 +1,8 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import bcrypt from 'bcryptjs';
 
-const handler = NextAuth({
+export const authOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -10,7 +11,16 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (credentials.username === 'admin' && credentials.password === 'tinypp1234') {
+        const passwordHash = process.env.ADMIN_PASSWORD_HASH;
+
+        if (!passwordHash || !credentials?.username || !credentials?.password) {
+          return null;
+        }
+
+        const isUsernameValid = credentials.username === 'admin';
+        const isPasswordValid = await bcrypt.compare(credentials.password, passwordHash);
+
+        if (isUsernameValid && isPasswordValid) {
           return {
             id: '1',
             name: 'Admin',
@@ -36,6 +46,8 @@ const handler = NextAuth({
   pages: {
     signIn: '/admin',
   }
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST }; 

@@ -6,7 +6,7 @@ import logo from "./assets/favicon.png";
 
 const satoshi = localFont({
   src: './fonts/Satoshi-Variable.ttf',
-  variable: "--font-satoshi",
+  variable: "--font-satoshi-family",
 });
 
 export const metadata = {
