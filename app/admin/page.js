@@ -232,7 +232,7 @@ export default function AdminPage() {
 
   return (
     <div
-      className="min-h-screen p-6 text-white font-satoshi sm:p-8"
+      className="min-h-screen p-8 text-white font-satoshi"
       style={{
         backgroundImage: `url(${background.src})`,
         backgroundSize: "cover",
@@ -255,7 +255,7 @@ export default function AdminPage() {
 
         {error && <div className="mb-4 rounded border border-red-500 bg-red-950/70 p-3 text-red-100">{error}</div>}
 
-        <div className="rounded-lg border border-white/40 bg-black/20 p-6 shadow-lg">
+        <div className="rounded-lg border border-white/40 bg-transparent p-6 shadow-lg">
           <Image src={logo} alt="Logo" width={200} height={200} className="mx-auto mb-4" />
 
           <div className="mb-4 text-center">
@@ -279,7 +279,7 @@ export default function AdminPage() {
             <button
               onClick={handleSetTarget}
               disabled={!socket?.connected}
-              className="rounded border border-[#E283BD] bg-[#1E1E1E] px-5 py-2 font-semibold text-white transition-colors hover:border-[#E2CF6C] disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-[30px] border border-[#E283BD] bg-[#1E1E1E] px-5 py-2 font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#E283BD] to-[#E2CF6C] transition-all hover:scale-105 hover:border-[#E2CF6C] hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
             >
               Set Time
             </button>
@@ -290,7 +290,7 @@ export default function AdminPage() {
               <button
                 onClick={handleStart}
                 disabled={!socket?.connected || !targetTime}
-                className="rounded border border-[#E283BD] bg-[#1E1E1E] px-6 py-2 font-semibold text-white transition-colors hover:border-[#E2CF6C] disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-[30px] border border-[#E283BD] bg-[#1E1E1E] px-6 py-2 font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#E283BD] to-[#E2CF6C] transition-all hover:scale-105 hover:border-[#E2CF6C] hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Start Timer
               </button>
@@ -299,14 +299,14 @@ export default function AdminPage() {
                 <button
                   onClick={handlePauseResume}
                   disabled={!socket?.connected}
-                  className="rounded border border-[#E283BD] bg-[#1E1E1E] px-6 py-2 font-semibold text-white transition-colors hover:border-yellow-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-[30px] border border-[#E283BD] bg-[#1E1E1E] px-6 py-2 font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#E283BD] to-[#E2CF6C] transition-all hover:scale-105 hover:border-yellow-600 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isPaused ? "Resume" : "Pause"}
                 </button>
                 <button
                   onClick={() => setIsDialogOpen(true)}
                   disabled={!socket?.connected}
-                  className="rounded border border-[#E283BD] bg-[#1E1E1E] px-6 py-2 font-semibold text-white transition-colors hover:border-pink-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-[30px] border border-[#E283BD] bg-[#1E1E1E] px-6 py-2 font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#E283BD] to-[#E2CF6C] transition-all hover:scale-105 hover:border-pink-600 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Stop
                 </button>

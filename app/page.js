@@ -3,7 +3,11 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import io from "socket.io-client";
-import bg from "./assets/thh1.svg";
+import VideoPlayer from "./VideoPlayer";
+import timelineSvg from "./assets/timeline.svg";
+import landingpage3Svg from "./assets/landing_page_3.svg";
+import background from "./assets/background.svg";
+import logo from "./assets/logo.png";
 
 const motivationalQuotes = [
   "Hackathons aren't about coding, they're about creating the future.",
@@ -41,8 +45,10 @@ export default function Home() {
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currentQuote, setCurrentQuote] = useState(0);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState("connecting");
   const [announcements, setAnnouncements] = useState([]);
+  const [imageSize, setImageSize] = useState(250);
 
   useEffect(() => {
     const socket = io({
@@ -74,18 +80,44 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    const updateSize = () => {
+      setImageSize(window.innerWidth < 640 ? 150 : 250);
+    };
+
+    updateSize();
+    window.addEventListener("resize", updateSize);
+
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
+
+  useEffect(() => {
     if (!isRunning || isPaused || !targetTime) return undefined;
 
     const interval = setInterval(() => {
       setTime(calculateRemainingTime(targetTime));
     }, 1000);
 
-    return () => clearInterval(interval);
+    const firstVideoTimeout = setTimeout(() => {
+      setIsVideoOpen(true);
+      setTimeout(() => setIsVideoOpen(false), 30000);
+    }, 10000);
+
+    const videoInterval = setInterval(() => {
+      setIsVideoOpen(true);
+      setTimeout(() => setIsVideoOpen(false), 30000);
+    }, 7650000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(firstVideoTimeout);
+      clearInterval(videoInterval);
+    };
   }, [isRunning, isPaused, targetTime]);
 
   useEffect(() => {
     if (!isRunning || isPaused || time <= 0) return undefined;
 
+    setCurrentQuote((prev) => (prev + 1) % motivationalQuotes.length);
     const quoteInterval = setInterval(() => {
       setCurrentQuote((prev) => (prev + 1) % motivationalQuotes.length);
     }, 3000);
@@ -94,24 +126,46 @@ export default function Home() {
   }, [isRunning, isPaused, time]);
 
   return (
-    <main className="relative flex min-h-screen w-screen flex-col items-center overflow-hidden bg-black p-8 text-white sm:p-16 lg:p-36 font-satoshi">
-      <Image src={bg} fill className="object-cover" alt="Countdown background" priority />
+    <main className="relative flex min-h-screen w-screen flex-col items-center overflow-hidden bg-black p-8 text-white font-satoshi sm:p-16 lg:p-36">
+      <Image src={background} fill className="object-cover" alt="Countdown background" priority />
 
-      <section className="z-10 flex min-h-screen flex-col items-center justify-center">
+      <div className="absolute right-0 top-0 z-10 -mt-60">
+        <Image src={timelineSvg} alt="Timeline decoration" width={350} height={350} />
+      </div>
+
+      <div className="absolute left-0 top-0 z-10 -mt-16 scale-x-[-1] scale-y-[-1]">
+        <Image src={timelineSvg} alt="Timeline decoration flipped" width={300} height={300} />
+      </div>
+
+      <div className="absolute bottom-0 right-0 z-10 -mb-20 overflow-hidden md:-mb-44">
+        <Image src={landingpage3Svg} alt="Landing page decoration" width={imageSize} height={imageSize} />
+      </div>
+
+      <div className="absolute bottom-0 left-0 z-10 -mb-16 scale-x-[-1] scale-y-[-1] overflow-hidden md:-mb-20">
+        <Image src={landingpage3Svg} alt="Landing page decoration flipped" width={imageSize} height={imageSize} />
+      </div>
+
+      <div className="z-10 flex h-1/4 w-screen items-center justify-center">
+        <div className="relative flex w-screen flex-col items-center justify-center gap-0">
+          <Image src={logo} alt="Logo" width={200} className="top-2 -mt-12 mb-12 sm:-mt-24" priority />
+        </div>
+      </div>
+
+      <section className="z-50 flex-col">
         {isRunning && !isPaused && time > 0 ? (
           announcements.length > 0 ? (
-            <div className="mb-2 min-h-16 text-center font-bold transition-opacity duration-500 ease-in-out">
+            <div className="mb-2 min-h-16 text-center text-base font-bold transition-opacity duration-500 ease-in-out sm:text-2xl">
               {announcements.map((item) => (
                 <div
                   key={item.id}
-                  className="mb-4 rounded-md px-4 py-2 text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-[#ce29ba] via-[#ea7af0] to-[#ce29ba] sm:text-5xl"
+                  className="mb-4 -mt-6 rounded-md bg-[#1E1E1E] bg-gradient-to-r from-pink-600 to-yellow-600 bg-clip-text px-4 py-2 text-3xl font-extrabold text-transparent shadow-none sm:text-5xl"
                 >
                   <p className="font-bold">{item.text}</p>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="mb-2 min-h-16 text-center text-base font-extrabold text-pink-600 transition-opacity duration-500 ease-in-out sm:text-2xl">
+            <div className="mb-2 min-h-16 text-center text-base font-bold text-gray-400 transition-opacity duration-500 ease-in-out sm:text-2xl">
               {motivationalQuotes[currentQuote]}
             </div>
           )
@@ -128,13 +182,19 @@ export default function Home() {
         </div>
 
         {targetTime && time === 0 && <p className="mt-8 text-center text-4xl">Hackathon has Ended!</p>}
+
+        <div className="mt-4 text-center text-transparent">
+          {!isRunning ? "Timer Stopped" : isPaused ? "Timer Paused" : "Timer Running"}
+        </div>
       </section>
 
       {connectionStatus === "failed" && (
         <div className="fixed right-4 top-4 z-20 rounded-md bg-red-500 px-4 py-2 text-white">
-          Failed to connect. Please check your internet connection.
+          Failed to Connect. Please check your internet connection and try again later.
         </div>
       )}
+
+      <VideoPlayer isOpen={isVideoOpen} onClose={() => setIsVideoOpen(false)} />
     </main>
   );
 }

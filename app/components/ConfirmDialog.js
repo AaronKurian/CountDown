@@ -17,13 +17,13 @@ const ConfirmDialog = ({ isOpen, onClose, onConfirm, password, setPassword }) =>
             &times; {/* Close 'x' mark */}
           </button>
         </div>
-        <div className="relative mb-4">
+        <div className="relative mb-8">
           <input
             type={showPassword ? "text" : "password"} // Toggle between text and password
             placeholder="Enter password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="border p-2 w-full text-gray-800"
+            className="border p-2 w-full text-gray-200"
           />
           <button
             type="button"
@@ -36,13 +36,13 @@ const ConfirmDialog = ({ isOpen, onClose, onConfirm, password, setPassword }) =>
         <div className="flex justify-center items-center gap-6 ">
           <button
             onClick={onConfirm}
-            className="bg-red-600 text-white w-24 font-semibold px-4 py-2 rounded hover:bg-red-700"
+            className="bg-red-600 text-white w-full font-semibold px-4 py-2 rounded hover:bg-red-700"
           >
             Yes
           </button>
           <button
             onClick={onClose}
-            className="bg-gray-300 text-black w-24 font-semibold px-4 py-2 rounded hover:bg-gray-400"
+            className="bg-gray-300 text-black w-full font-semibold px-4 py-2 rounded hover:bg-gray-400"
           >
             No
           </button>
